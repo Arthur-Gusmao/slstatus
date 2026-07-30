@@ -91,6 +91,9 @@ main(int argc, char *argv[])
 			if (!(res = args[i].func(args[i].args)))
 				res = unknown_str;
 
+			if (res[0] == '\0')
+				continue;
+
 			if ((ret = esnprintf(status + len, sizeof(status) - len,
 			                     args[i].fmt, res)) < 0)
 				break;

@@ -14,6 +14,17 @@
 	#include <unistd.h>
 
 	#define POWER_SUPPLY_CAPACITY "/sys/class/power_supply/%s/capacity"
+	#define POWER_SUPPLY_DIR      "/sys/class/power_supply/%s"
+
+	static int
+	battery_exists(const char *bat)
+	{
+		char path[PATH_MAX];
+
+		if (esnprintf(path, sizeof(path), POWER_SUPPLY_DIR, bat) < 0)
+			return 0;
+		return access(path, F_OK) == 0;
+	}
 	#define POWER_SUPPLY_STATUS   "/sys/class/power_supply/%s/status"
 	#define POWER_SUPPLY_CHARGE   "/sys/class/power_supply/%s/charge_now"
 	#define POWER_SUPPLY_ENERGY   "/sys/class/power_supply/%s/energy_now"
@@ -41,6 +52,8 @@
 		int cap_perc;
 		char path[PATH_MAX];
 
+		if (!battery_exists(bat))
+			return "";
 		if (esnprintf(path, sizeof(path), POWER_SUPPLY_CAPACITY, bat) < 0)
 			return NULL;
 		if (pscanf(path, "%d", &cap_perc) != 1)
@@ -64,6 +77,8 @@
 		size_t i;
 		char path[PATH_MAX], state[13];
 
+		if (!battery_exists(bat))
+			return "";
 		if (esnprintf(path, sizeof(path), POWER_SUPPLY_STATUS, bat) < 0)
 			return NULL;
 		if (pscanf(path, "%12[a-zA-Z ]", state) != 1)
